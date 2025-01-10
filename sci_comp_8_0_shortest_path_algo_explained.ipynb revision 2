@@ -1,0 +1,1253 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyODhiwGrXd5g3g+mwxK8v0V",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/sita-aghasoy33/Scientific-Computing-with-Python-by-Freecodecamp.org/blob/main/sci_comp_8_0_shortest_path_algo_explained.ipynb%20revision%202\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **8. Learn Algorithm Design by Building a Shortest Path Algorithm**\n",
+        "\n",
+        "[go to the task in official web-site: www.freecodecamp.org](https://www.freecodecamp.org/learn/scientific-computing-with-python/#learn-algorithm-design-by-building-a-shortest-path-algorithm)"
+      ],
+      "metadata": {
+        "id": "4KOOFGYBQFon"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **Dijkstra's Algorithm: Brief Explanation**\n",
+        "\n",
+        "**Purpose:**\n",
+        "Dijkstra's algorithm computes the shortest path from a given starting node to all other nodes in a weighted graph, ensuring that the path cost is minimized.\n",
+        "\n",
+        "\n",
+        "**Initialization:**\n",
+        "* Start with a list of unvisited nodes.\n",
+        "* Assign an initial distance of 0 to the starting node and ∞ to all other nodes.\n",
+        "* Maintain a record of paths for each node.\n",
+        "\n",
+        "**Selection of the Current Node:**\n",
+        "* From the unvisited nodes, select the node with the smallest known distance (initially the start node).\n",
+        "\n",
+        "**Relaxation:**\n",
+        "* For each neighbor of the current node, calculate the potential new distance through the current node.\n",
+        "* If this distance is shorter, update the shortest distance and record the path.\n",
+        "\n",
+        "**Mark as Visited:**\n",
+        "* Remove the current node from the unvisited list and repeat until all nodes are visited or the target is reached.\n",
+        "\n",
+        "**Output:**\n",
+        "* *Distances:* The shortest distance from the start node to each node.\n",
+        "* *Paths:* The sequence of nodes forming the shortest path.\n",
+        "\n",
+        "**Complexity:**\n",
+        "* Time complexity is ***O(V2)O(V2)*** for an adjacency matrix and ***O((V+E)log⁡V)O((V+E)logV)*** with a priority queue (not used here).\n",
+        "\n",
+        "**Example Use Cases:**\n",
+        "Network routing\n",
+        "GPS navigation systems\n",
+        "Game AI for shortest pathfinding"
+      ],
+      "metadata": {
+        "id": "IgxV5iCqQHFH"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **Work with dictionaries**"
+      ],
+      "metadata": {
+        "id": "FoQ7_tChSM3r"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 70,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4c5cJQN7s897",
+        "outputId": "4bfa4616-6d70-45ba-e4d1-1190a3dc01e7"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "guinea pig\n",
+            "2\n"
+          ]
+        }
+      ],
+      "source": [
+        "# Create a dictionary\n",
+        "copper = {\n",
+        "    'species': 'guinea pig',\n",
+        "    'age': 2\n",
+        "}\n",
+        "\n",
+        "# print the values by calling the relevant keys\n",
+        "print(copper['species'])\n",
+        "print(copper['age'])"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# add new key with its value\n",
+        "copper['food'] = 'hay'\n",
+        "\n",
+        "# change the value of existing key\n",
+        "copper['species'] = 'Cavia porcellus'\n",
+        "\n",
+        "# print the dictionary\n",
+        "print(copper)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "MI9VVeEzv-m-",
+        "outputId": "a1283568-61c8-4a86-c204-e500dd7d0107"
+      },
+      "execution_count": 71,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "{'species': 'Cavia porcellus', 'age': 2, 'food': 'hay'}\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(copper.get('species'))\n",
+        "print(copper.items())\n",
+        "print(copper.values())\n",
+        "print(copper.keys())"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "YiAEP1zuOLqS",
+        "outputId": "a6869134-b96d-43c5-edc7-617d0ee1ed2f"
+      },
+      "execution_count": 72,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Cavia porcellus\n",
+            "dict_items([('species', 'Cavia porcellus'), ('age', 2), ('food', 'hay')])\n",
+            "dict_values(['Cavia porcellus', 2, 'hay'])\n",
+            "dict_keys(['species', 'age', 'food'])\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# delete an item from dictionary by key\n",
+        "del copper['age']"
+      ],
+      "metadata": {
+        "id": "Y0QPbjD_0w-z"
+      },
+      "execution_count": 73,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# iterate over dictionary\n",
+        "\n",
+        "# when we iterate an element of dictionary, it will bring us keys: i = key\n",
+        "for i in copper:\n",
+        "    print(i)\n",
+        "    print(type(i))\n",
+        "\n",
+        "print(\"\")\n",
+        "\n",
+        "# we can access the values by referencing keys in dictinary like dict[key]\n",
+        "for i in copper:\n",
+        "    print(copper[i])\n",
+        "    print(type(i)) # usually the keys are preffered to be strings\n",
+        "                   # as it is best to name something,\n",
+        "                   # but actually the key may be anything that is immutable."
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "gy7xZq40tIRd",
+        "outputId": "713540b7-6118-41fa-9add-67d55e8e9d96"
+      },
+      "execution_count": 74,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "species\n",
+            "<class 'str'>\n",
+            "food\n",
+            "<class 'str'>\n",
+            "\n",
+            "Cavia porcellus\n",
+            "<class 'str'>\n",
+            "hay\n",
+            "<class 'str'>\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# or we can directly iterate values from dict.values()\n",
+        "for i in copper.values():\n",
+        "    print(i)\n",
+        "    print(type(i))\n",
+        "\n",
+        "print(\"\")\n",
+        "\n",
+        "# to get (key, value) pairs from dictionary, we should iterate over dict.items()\n",
+        "for i in copper.items():\n",
+        "    print(i) # it will print out the key and its value as tuple\n",
+        "    print(type(i))\n",
+        "\n",
+        "# if we seperate values with \",\" , it is treated as tuple...\n",
+        "\n",
+        "# ...We face this in variable assignment...\n",
+        "a = 1,2\n",
+        "print(type(a))\n",
+        "\n",
+        "print(\"\")\n",
+        "\n",
+        "# ...in function return...\n",
+        "def example(a):\n",
+        "  b = a + 5\n",
+        "  return a, b\n",
+        "\n",
+        "print(example(10))\n",
+        "print(type(example(10)))\n",
+        "\n",
+        "\n",
+        "# ...and also in dictionary iteration like above-mentioned example"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "dAennVY0uJGR",
+        "outputId": "873b5931-6aaf-4716-e21a-b9a9e68bb235"
+      },
+      "execution_count": 75,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Cavia porcellus\n",
+            "<class 'str'>\n",
+            "hay\n",
+            "<class 'str'>\n",
+            "\n",
+            "('species', 'Cavia porcellus')\n",
+            "<class 'tuple'>\n",
+            "('food', 'hay')\n",
+            "<class 'tuple'>\n",
+            "<class 'tuple'>\n",
+            "\n",
+            "(10, 15)\n",
+            "<class 'tuple'>\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# instead of calling the pair as i, we can seperately call it as key, value\n",
+        "for key, value in copper.items():\n",
+        "    print(key, value)\n",
+        "    print(type((key, value)))\n",
+        "\n",
+        "# it is like adding tuples in a list, and each tuple contains two values:\n",
+        "# one of them stores key, one of them value\n",
+        "# (note that, in a tuple, both elements have equal standing;\n",
+        "# neither is designated as a key or a value like in a dictionary.)\n",
+        "# remember the task 7 - password generator\n",
+        "nums=1\n",
+        "special_chars=1\n",
+        "uppercase=1\n",
+        "lowercase=1\n",
+        "constraints = [\n",
+        "            (nums, r'\\d'),\n",
+        "            (special_chars, fr'[^0-9a-zA-Z_]'),\n",
+        "            (uppercase, r'[A-Z]'),\n",
+        "            (lowercase, r'[a-z]')\n",
+        "        ]\n",
+        "print(constraints)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1GSSbU57v0ow",
+        "outputId": "ea6482ad-aec2-4906-f16b-cf5b243e440c"
+      },
+      "execution_count": 76,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "species Cavia porcellus\n",
+            "<class 'tuple'>\n",
+            "food hay\n",
+            "<class 'tuple'>\n",
+            "[(1, '\\\\d'), (1, '[^0-9a-zA-Z_]'), (1, '[A-Z]'), (1, '[a-z]')]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "[go to github for sci_comp_7_password_generator.ipynb file](https://github.com/sita-aghasoy33/Scientific-Computing-with-Python-by-Freecodecamp.org/blob/main/sci_comp_7_password_generator.ipynb)"
+      ],
+      "metadata": {
+        "id": "KdNsbj690VkF"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **Graphs**\n",
+        "Graphs are data structures representing relations between pairs of elements. These elements, called nodes, can be real-life objects, entities, points in space or others. The connections between the nodes are called the edges.\n",
+        "\n",
+        "\n",
+        "---\n",
+        "\n",
+        "![image.png](data:image/png;base64,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)\n"
+      ],
+      "metadata": {
+        "id": "Lvv3Asq4Ij3d"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "For example, a graph can be used to represent two points in the space, A and B, connected by a path. A graph like this will be made of two nodes connected by an edge."
+      ],
+      "metadata": {
+        "id": "hTCygQPsJjTz"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# create graphs as dictionaries\n",
+        "# each key represent a node and the value represents the other node(s)\n",
+        "# that is (are) connected to the node epxressed as key of dictionary.\n",
+        "\n",
+        "my_graph = {\n",
+        "    'A': 'B',\n",
+        "    'B': 'A'\n",
+        "}\n",
+        "\n",
+        "my_graph = {\n",
+        "    'A': 'B',\n",
+        "    'B': ['A', 'C'],\n",
+        "    'C': 'B'\n",
+        "}\n",
+        "\n",
+        "my_graph = {\n",
+        "    'A': ['B', 'D'],\n",
+        "    'B': ['A', 'C'],\n",
+        "    'C': ['B', 'D'],\n",
+        "    'D': ['A', 'C']\n",
+        "}"
+      ],
+      "metadata": {
+        "id": "5Vxt5zlcIoDr"
+      },
+      "execution_count": 77,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "A graph is called a weighted graph when its edges are associated with weights, representing a distance, time or other quantitative value.\n",
+        "\n",
+        "In your case, these weights will be the distances between each node, or point in space. To represent a weighted graph you can modify your dictionary, using a list of tuples for each value.\n",
+        "\n",
+        "In order to show a weighted graph we add distances to the list of connected nodes. We create a list of tuples that contain node and distance to the key node and assign that key to the value.\n"
+      ],
+      "metadata": {
+        "id": "4F6i-3MQKeUG"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# create graph as dictionary with main node as key\n",
+        "# and list of tuples with distances and nodes as value\n",
+        "my_graph = {\n",
+        "    'A': [('B', 3), ('D', 1)],\n",
+        "    'B': [('A', 3), ('C', 4)],\n",
+        "    'C': [('B', 4), ('D', 7)],\n",
+        "    'D': [('A', 1), ('C', 7)]  # this will be an input to test our functions\n",
+        "}\n",
+        "\n",
+        "list(my_graph) # while converting dictionary to list, we get list of keys."
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "gAG2kT_9JrY5",
+        "outputId": "58e4d214-11e0-4f88-f36b-a7de9206d18d"
+      },
+      "execution_count": 78,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['A', 'B', 'C', 'D']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 78
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# different ways of converting dict to list\n",
+        "list(my_graph) == list(my_graph.keys())\n",
+        "list(my_graph.keys())"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "nBB55ZEKbMZH",
+        "outputId": "d2cb3574-e1e2-408f-8f69-434088e693a3"
+      },
+      "execution_count": 79,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['A', 'B', 'C', 'D']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 79
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "https://www.freecodecamp.org/learn/scientific-computing-with-python/#learn-algorithm-design-by-building-a-shortest-path-algorithm"
+      ],
+      "metadata": {
+        "id": "hmk038a5LWsz"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# start to formulate the function\n",
+        "def shortest_path(graph, start):\n",
+        "    unvisited = []\n",
+        "    distances = {}\n",
+        "    for node in graph:\n",
+        "        unvisited.append(node)\n",
+        "        if node == start:\n",
+        "            distances[node] = 0\n",
+        "        else:\n",
+        "            distances[node] = float('inf')\n",
+        "    print(f'Unvisited: {unvisited}\\nDistances: {distances}')\n",
+        "\n",
+        "shortest_path(my_graph, \"A\") # works without error but not ready yet"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "rVLIY_GmLIwE",
+        "outputId": "38b11e33-1359-4267-8151-006e9a8c1ed3"
+      },
+      "execution_count": 80,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Unvisited: ['A', 'B', 'C', 'D']\n",
+            "Distances: {'A': 0, 'B': inf, 'C': inf, 'D': inf}\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# different way to create dictionary from keys of other dictionary\n",
+        "\n",
+        "# 1st\n",
+        "def shortest_path(graph, start):\n",
+        "    unvisited = list(graph)\n",
+        "    distances = {}\n",
+        "    paths = {key: [] for key in graph}\n",
+        "    print(f'Unvisited: {unvisited}\\nDistances: {distances}')\n",
+        "\n",
+        "# 2nd\n",
+        "def shortest_path(graph, start):\n",
+        "    unvisited = list(graph)\n",
+        "    distances = {}\n",
+        "    paths = dict.fromkeys(graph, [])\n",
+        "    print(f'Unvisited: {unvisited}\\nDistances: {distances}')"
+      ],
+      "metadata": {
+        "id": "KD6pIN_ONzPr"
+      },
+      "execution_count": 81,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# create dictionary with key and value respectively\n",
+        "def shortest_path(graph, start):\n",
+        "    unvisited = list(graph)\n",
+        "    distances = {node: 0 if node == start else float('inf') for node in graph}\n",
+        "    paths = {node: [] for node in graph}\n",
+        "    print(f'Unvisited: {unvisited}\\nDistances: {distances}')"
+      ],
+      "metadata": {
+        "id": "_rk_zkv3QBuv"
+      },
+      "execution_count": 82,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **Check for empty list**\n",
+        "\n",
+        "Usually we remind it this way:\n",
+        "\n",
+        "\n",
+        "```\n",
+        "temp_list = []\n",
+        "\n",
+        "len(temp_list) == 0 # It will return True if it is empty\n",
+        "\n",
+        ">>> True\n",
+        "```\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "NEeYfn_qEmIk"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# This piece of code is right...\n",
+        "\n",
+        "temp_list = []\n",
+        "\n",
+        "len(temp_list) == 0 # It will return True if it is empty"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "YXF8Lew6FFV3",
+        "outputId": "ae7356de-c20f-47a0-fb0a-a0b897cd5ef6"
+      },
+      "execution_count": 83,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "True"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 83
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# ...but there is more efficient way\n",
+        "# ...but there is more efficient way\n",
+        "temp_list = []\n",
+        "print(bool(temp_list))\n",
+        "print(not temp_list)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "m4RjyfXIQCzO",
+        "outputId": "bbddc4a3-b608-46ff-f90b-9bef5b3c95f4"
+      },
+      "execution_count": 84,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "False\n",
+            "True\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "The empty list, tuple, dict, set, and even array is treated as False when converted into a Boolean type. Lets try some **basic** *(integer, float, string, boolean)* and **complex** *(set, tuple, list, dict)* to see their results as boolean."
+      ],
+      "metadata": {
+        "id": "SJHfA8TLFRYw"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "temp_str, temp_empty_str = 'hello', ''\n",
+        "temp_int, temp_0_int, temp_neg_int = 1, 0, -1\n",
+        "temp_float, temp_0_float, temp_neg_float = 1.3, 0.0, -1.5\n",
+        "temp_neg_bool, temp_pos_bool = False, True\n",
+        "\n",
+        "list_of_all_vars = [temp_str, temp_empty_str,\n",
+        "                    temp_int, temp_0_int, temp_neg_int,\n",
+        "                    temp_float,temp_0_float, temp_neg_float,\n",
+        "                    temp_neg_bool, temp_pos_bool]\n",
+        "\n",
+        "for var in list_of_all_vars:\n",
+        "  print(str(var).rjust(5), bool(var), sep = \"  |  \")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "OGX07tvcGxeu",
+        "outputId": "5349ba7a-8211-48b9-b24c-70fc05183321"
+      },
+      "execution_count": 85,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "hello  |  True\n",
+            "       |  False\n",
+            "    1  |  True\n",
+            "    0  |  False\n",
+            "   -1  |  True\n",
+            "  1.3  |  True\n",
+            "  0.0  |  False\n",
+            " -1.5  |  True\n",
+            "False  |  False\n",
+            " True  |  True\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# complex data structures converted to boolean (logical)\n",
+        "\n",
+        "# Empty and full list, set, tuple, dict\n",
+        "empty_list = []\n",
+        "full_list = [1, 2, 3]\n",
+        "\n",
+        "empty_set = set()\n",
+        "full_set = {1, 2, 3}\n",
+        "\n",
+        "empty_tuple = ()\n",
+        "full_tuple = (1, 2, 3)\n",
+        "\n",
+        "empty_dict = {}\n",
+        "full_dict = {'a': 1, 'b': 2, 'c': 3}\n",
+        "\n",
+        "# Print bool conversions\n",
+        "print(\"Empty List:\", bool(empty_list))\n",
+        "print(\"Full List:\", bool(full_list))\n",
+        "\n",
+        "print(\"Empty Set:\", bool(empty_set))\n",
+        "print(\"Full Set:\", bool(full_set))\n",
+        "\n",
+        "print(\"Empty Tuple:\", bool(empty_tuple))\n",
+        "print(\"Full Tuple:\", bool(full_tuple))\n",
+        "\n",
+        "print(\"Empty Dictionary:\", bool(empty_dict))\n",
+        "print(\"Full Dictionary:\", bool(full_dict))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "f_9lL4ijKzfd",
+        "outputId": "3f8f0c05-8909-4dd7-fb73-f36fbef6cbb0"
+      },
+      "execution_count": 86,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Empty List: False\n",
+            "Full List: True\n",
+            "Empty Set: False\n",
+            "Full Set: True\n",
+            "Empty Tuple: False\n",
+            "Full Tuple: True\n",
+            "Empty Dictionary: False\n",
+            "Full Dictionary: True\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# same is applicable for arrays, but we usually do not prefer to do this\n",
+        "import numpy as np\n",
+        "\n",
+        "arr = np.array([])\n",
+        "print(bool(arr))\n",
+        "print(arr.size == 0)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "X9DNeK8bFVH0",
+        "outputId": "84efd0b4-1b78-46b8-9448-460953d255a2"
+      },
+      "execution_count": 87,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "False\n",
+            "True\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "<ipython-input-87-3db1f87f4b88>:5: DeprecationWarning: The truth value of an empty array is ambiguous. Returning False, but in future this will result in an error. Use `array.size > 0` to check that an array is not empty.\n",
+            "  print(bool(arr))\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "This characteristic of variables in Python, helps us to create more efficient logical operations. So instead of:\n",
+        "\n",
+        "\n",
+        "```\n",
+        "if len(temp_list) == 0: #\n",
+        "  print(temp_list)\n",
+        "```\n",
+        "We can get same result by:\n",
+        "\n",
+        "\n",
+        "```\n",
+        "if not(temp_list):\n",
+        "\n",
+        "# when list is empty this code will give us True, as empty list is False.\n",
+        "# if list is full, this code will give us False, as full list is True\n",
+        "  print(temp_list)\n",
+        "```\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "V-9HQe5bLeMD"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **Only Keyword Functions: min()**\n",
+        "\n",
+        "The min() function finds the smallest thing in a list or group. Normally, it looks at the actual values to decide what’s the smallest. But sometimes, you might want it to look at something specific about each item, not just the item itself. That’s where the key argument comes in.\n",
+        "\n",
+        "min() takes also a keyword-only argument. Passing a function as an additional argument to min(), you can modify the way the list items are compared."
+      ],
+      "metadata": {
+        "id": "jKQK_kwV_uQx"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "numbers = [10, -5, 7, -1]\n",
+        "print(min(numbers))  # Output: -5 (because -5 is the smallest)\n",
+        "print(min(numbers, key=abs))  # Output: -1 (because abs(-1) = 1, the smallest)\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "sq4vaTl_8kKz",
+        "outputId": "02a096a0-cffd-40cd-c9e3-fe45eac2a576"
+      },
+      "execution_count": 88,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "-5\n",
+            "-1\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "words = [\"elephant\", \"cat\", \"hippopotamus\", \"dog\"]\n",
+        "print(min(words)) # Output: \"cat\" (alphabetically first)\n",
+        "print(min(words, key=len)) # Output: \"cat\" (with the shortest length)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "I-JjmwTVABpg",
+        "outputId": "2b341d35-fc79-4e7c-8a40-58c6627fd8bc"
+      },
+      "execution_count": 89,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "cat\n",
+            "cat\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "A keyword-only argument is a function argument that must be passed by name, not position. You can't just provide the value without specifying the name of the argument. This helps make the code clearer and avoids mistakes when passing arguments."
+      ],
+      "metadata": {
+        "id": "71Yt7TUuAkJl"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# When we include 'len' without keyword 'key',\n",
+        "# it accepts 'len' as another argument to compare and find minimum\n",
+        "# in order to specify that is the criterion to calculate minimum,\n",
+        "# the keyword should be specified\n",
+        "\n",
+        "words = [\"elephant\", \"cat\", \"hippopotamus\", \"dog\"]\n",
+        "\n",
+        "# uncomment the below-mentioned code to see the result\n",
+        "# print(min(words, len)) # Output: TypeError"
+      ],
+      "metadata": {
+        "id": "SeYMY5p9AH5j"
+      },
+      "execution_count": 90,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Other keyword only functions\n",
+        "\n",
+        "words = [\"apple\", \"banana\", \"cherry\"]\n",
+        "\n",
+        "# sorted() - key and reserve arguments\n",
+        "print(sorted(words, key=len, reverse=True))  # Output: ['banana', 'cherry', 'apple']\n",
+        "\n",
+        "# max() - key argument\n",
+        "print(max(words, key=len))  # Output: 'cherry'\n",
+        "\n",
+        "# print() - sep and end arguments\n",
+        "print(\"Hello\", \"world\", sep=\", \", end=\"!\\n\")  # Output: Hello, world!"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4JazuG2EAr5_",
+        "outputId": "2aa227d6-1dae-40f4-a7d3-51b29dcdd09b"
+      },
+      "execution_count": 91,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "['banana', 'cherry', 'apple']\n",
+            "banana\n",
+            "Hello, world!\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#### **How to define keyword only functions?**"
+      ],
+      "metadata": {
+        "id": "NB6m0CNiD1p-"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# put an asterix  ('*') between positional and keyword arguments\n",
+        "def calculate_area(length, width, *, unit=\"cm\"):\n",
+        "    return f\"Area: {length * width} {unit}²\"\n",
+        "\n",
+        "# Correct usage:\n",
+        "print(calculate_area(5, 10, unit=\"m\"))  # Output: Area: 50 m²\n",
+        "\n",
+        "# Incorrect usage: uncomment the below-mentioned code to see result\n",
+        "# print(calculate_area(5, 10, \"m\"))  # Error: TypeError"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "pykTf3b6D01g",
+        "outputId": "3e7b4a5a-6106-4843-e403-53b214758a41"
+      },
+      "execution_count": 92,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Area: 50 m²\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **Create functions for shortest path**"
+      ],
+      "metadata": {
+        "id": "9Qp-aQTKCCxo"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# create dictinary for graph to use as input\n",
+        "my_graph1 = {\n",
+        "    'A': [('B', 3), ('D', 1)],\n",
+        "    'B': [('A', 3), ('C', 4)],\n",
+        "    'C': [('B', 4), ('D', 7)],\n",
+        "    'D': [('A', 1), ('C', 7)]\n",
+        "}\n",
+        "\n",
+        "my_graph2 = {\n",
+        "    'A': [('B', 5), ('C', 3), ('E', 11)],\n",
+        "    'B': [('A', 5), ('C', 1), ('F', 2)],\n",
+        "    'C': [('A', 3), ('B', 1), ('D', 1), ('E', 5)],\n",
+        "    'D': [('C', 1), ('E', 9), ('F', 3)],\n",
+        "    'E': [('A', 11), ('C', 5), ('D', 9)],\n",
+        "    'F': [('B', 2), ('D', 3)]\n",
+        "}"
+      ],
+      "metadata": {
+        "id": "TKSg8Vv58vVe"
+      },
+      "execution_count": 93,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Define a function to find the shortes path\n",
+        "def shortest_path(graph, start):\n",
+        "    \"\"\"\n",
+        "    Define a function to find the shortes path\n",
+        "    between the given 'start' node and the other nodes in the graph.\n",
+        "\n",
+        "    Args:\n",
+        "        graph (dict): A dictionary representing the graph.\n",
+        "        start (str): The starting node for the shortest path search.\n",
+        "\n",
+        "    Returns:\n",
+        "        None\n",
+        "\n",
+        "    Print:\n",
+        "        Unvisited: A list of nodes that have not been visited yet (an empty list)\n",
+        "        Distances: A dictionary mapping each node to its shortest distance from the 'start' node.\n",
+        "        Paths: A dictionary mapping each node to its shortest path from the 'start' node.\n",
+        "\n",
+        "    Raises:\n",
+        "        KeyError: If the 'start' node is not found in the graph.\n",
+        "        TypeError: If the 'graph' argument is not a dictionary.\n",
+        "        TypeError: If a required arguments is not given.\n",
+        "\n",
+        "    Examples:\n",
+        "        >>> shortest_path(my_graph, \"A\")\n",
+        "        Unvisited: []\n",
+        "        Distances: {'A': 0, 'B': 3, 'C': 4, 'D': 1}\n",
+        "        Paths: {'A': ['A'], 'B': ['A', 'B'], 'C': ['A', 'B', 'C'], 'D': ['A', 'D']}\n",
+        "    \"\"\"\n",
+        "    # create list of nodes and name it 'unvisited'\n",
+        "    unvisited = list(graph) # stores the remained nodes after finalising track\n",
+        "    # create a dict to store distances, initialize all as infite\n",
+        "    distances = {node: 0 if node == start else float('inf') for node in graph}\n",
+        "    # create a dict to store pathes from the 'start' node to all other nodes\n",
+        "    paths = {node: [] for node in graph}\n",
+        "    paths[start].append(start) # from 'start' node to itself the path equals 'start' node itself\n",
+        "\n",
+        "    # untill the all nodes are visited run the below-mentioned code\n",
+        "    while unvisited:\n",
+        "        # find the 'current' node by finding the the node with minimum distance\n",
+        "        # it shows where we stand right now\n",
+        "        current = min(unvisited, key=distances.get)\n",
+        "\n",
+        "        # take current node as a key of main graph,\n",
+        "        # and iterate over its correponding value: list of tuples\n",
+        "        # the first element of tuple is node, and the second is distance to it\n",
+        "        for node, distance in graph[current]:\n",
+        "            # if going through the current node gives a shorter path to node\n",
+        "            # compared to the currently known shortest distance 'distances[node]'\n",
+        "            # here distance = edge weight between current and node\n",
+        "            # distances[current] = the shortest distance from the start node to current.\n",
+        "            # the below code gives True for 'inf' distances\n",
+        "            if distance + distances[current] < distances[node]:\n",
+        "                # if True assign new distance instead of old, cause it is shorter.\n",
+        "                distances[node] = distance + distances[current]\n",
+        "                # if there is an older path to the this node...\n",
+        "                if paths[node] and paths[node][-1] == node:\n",
+        "                    paths[node] = paths[current][:] #...update it with shorter one\n",
+        "                else: # if the path for this node does not exist...\n",
+        "                    paths[node].extend(paths[current])  # get the full path from start node...\n",
+        "                paths[node].append(node) #...add it among the paths\n",
+        "        # remove the 'current' node from 'unvisited' list, because it has been visited\n",
+        "        unvisited.remove(current)\n",
+        "    # print results\n",
+        "    print(f'Unvisited: {unvisited}\\nDistances: {distances}\\nPaths: {paths}')"
+      ],
+      "metadata": {
+        "id": "894JLeERKWDE"
+      },
+      "execution_count": 94,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def main():\n",
+        "    shortest_path(my_graph1, \"A\")\n",
+        "    print(\"\")\n",
+        "    shortest_path(my_graph2, \"B\")\n",
+        "\n",
+        "if __name__ == \"__main__\":\n",
+        "    main()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4MaZnlIcw94D",
+        "outputId": "5c9b9d6d-f4fb-42c2-8b74-8c8d46640e19"
+      },
+      "execution_count": 95,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Unvisited: []\n",
+            "Distances: {'A': 0, 'B': 3, 'C': 7, 'D': 1}\n",
+            "Paths: {'A': ['A'], 'B': ['A', 'B'], 'C': ['A', 'B', 'C'], 'D': ['A', 'D']}\n",
+            "\n",
+            "Unvisited: []\n",
+            "Distances: {'A': 4, 'B': 0, 'C': 1, 'D': 2, 'E': 6, 'F': 2}\n",
+            "Paths: {'A': ['B', 'C', 'A'], 'B': ['B'], 'C': ['B', 'C'], 'D': ['B', 'C', 'D'], 'E': ['B', 'C', 'E'], 'F': ['B', 'F']}\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Define a function that finds shortest path between given start and target node\n",
+        "def shortest_path(graph, start, target = ''):\n",
+        "    \"\"\"\n",
+        "    Define a function to find the shortes path\n",
+        "    between the given 'start' node and the other nodes in the graph.\n",
+        "\n",
+        "    Args:\n",
+        "        graph (dict): A dictionary representing the graph.\n",
+        "        start (str): The starting node for the shortest path search.\n",
+        "        target (str): The target node for the shortest path search.\n",
+        "\n",
+        "    Returns:\n",
+        "        distances (dict): A dictionary mapping each node to its shortest distance from the 'start' node.\n",
+        "        paths (dict): A dictionary mapping each node to its shortest path from the 'start' node.\n",
+        "        tuple: (distances, paths)\n",
+        "\n",
+        "    Print:\n",
+        "        distance and path for given start and target nodes.\n",
+        "\n",
+        "    Raises:\n",
+        "        KeyError: If the 'start' node is not found in the graph.\n",
+        "        TypeError: If the 'graph' argument is not a dictionary.\n",
+        "        TypeError: If a required arguments is not given.\n",
+        "\n",
+        "    Examples:\n",
+        "        >>> shortest_path(my_graph, \"A\")\n",
+        "        Unvisited: []\n",
+        "        Distances: {'A': 0, 'B': 3, 'C': 4, 'D': 1}\n",
+        "        Paths: {'A': ['A'], 'B': ['A', 'B'], 'C': ['A', 'B', 'C'], 'D': ['A', 'D']}\n",
+        "\n",
+        "        >>> shortest_path(my_graph, \"A\", \"F\")\n",
+        "        Unvisited: []\n",
+        "        Distances: {'A': 0, 'B': 3, 'C': 4, 'D': 1, 'F': 5}\n",
+        "        Paths: {'A': ['A'], 'B': ['A', 'B'], 'C': ['A', 'B', 'C'], 'D': ['A', 'D'], 'F': ['A', 'B', 'F']}\n",
+        "    \"\"\"\n",
+        "    # create initial lists and dictionaries\n",
+        "    unvisited = list(graph)\n",
+        "    distances = {node: 0 if node == start else float('inf') for node in graph}\n",
+        "    paths = {node: [] for node in graph}\n",
+        "    paths[start].append(start)\n",
+        "\n",
+        "    # until all nodes are visited\n",
+        "    while unvisited:\n",
+        "        # for the current node\n",
+        "        current = min(unvisited, key=distances.get)\n",
+        "        for node, distance in graph[current]:\n",
+        "            # find the shortest distance to subsequent node\n",
+        "            if distance + distances[current] < distances[node]:\n",
+        "                distances[node] = distance + distances[current] # and assign it\n",
+        "                # if there is already a path for this node...\n",
+        "                if paths[node] and paths[node][-1] == node:\n",
+        "                    paths[node] = paths[current][:] # ...replace it with shortest so far.\n",
+        "                else: # if not...\n",
+        "                    paths[node].extend(paths[current]) # ...get the full path from start...\n",
+        "                paths[node].append(node) # and add it among paths.\n",
+        "        # remove already visited node from 'unvisited' list.\n",
+        "        unvisited.remove(current)\n",
+        "\n",
+        "    #  if target is provided assign it as list (to iterate), if not, take the whole graph\n",
+        "    targets_to_print = [target] if target else graph\n",
+        "    # for each node in target that is not equal to the 'start' node...\n",
+        "    for node in targets_to_print:\n",
+        "        if node == start:\n",
+        "            continue # ...print the distance and path\n",
+        "        print(f'\\n{start}-{node} distance: {distances[node]}\\nPath: {\" -> \".join(paths[node])}')\n",
+        "\n",
+        "    return distances, paths"
+      ],
+      "metadata": {
+        "id": "MPLXITXIKYlW"
+      },
+      "execution_count": 96,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def main():\n",
+        "    shortest_path(my_graph1, 'A')\n",
+        "    shortest_path(my_graph2, 'A', 'A')\n",
+        "\n",
+        "if __name__ == \"__main__\":\n",
+        "    main()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "aLvpPWqDCGvG",
+        "outputId": "050c4f59-e0cb-43cf-df6c-c64127d96a75"
+      },
+      "execution_count": 97,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "A-B distance: 3\n",
+            "Path: A -> B\n",
+            "\n",
+            "A-C distance: 7\n",
+            "Path: A -> B -> C\n",
+            "\n",
+            "A-D distance: 1\n",
+            "Path: A -> D\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
